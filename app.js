@@ -17,6 +17,8 @@ const chatInput = document.getElementById('chat-input');
 const chatSend = document.getElementById('chat-send');
 const pasteToggle = document.getElementById('paste-toggle');
 const pasteArea = document.getElementById('paste-area');
+// Cancel button for progress
+const cancelBtn = document.getElementById('cancel-btn');
 
 // No visible model selector; cloud is used if key present, else local fallback
 // OpenRouter key is now embedded via config below for simplicity
@@ -207,7 +209,9 @@ async function getInputText() {
       setProgress('');
     }
   }
-  return (text || '').trim();
+  const parsed = (text || '').trim();
+  if (explainPlainBtn) explainPlainBtn.disabled = !(file || parsed.length);
+  return parsed;
 }
 
 async function preProcessSelectedFile() {
@@ -406,8 +410,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
 // Cloud inference via OpenRouter (DeepSeek or GPT-OSS-20b free route)
 async function cloudExplain(text, shortMode, apiKey) {
-  const system = 'You rewrite legal text into plain, simple English. Keep meaning accurate and neutral. Use short sentences and bullet points.';
-  const user = `${shortMode ? 'Summarize briefly' : 'Explain thoroughly but clearly'} in plain English:\n\n${text}`;
+  const system = 'You explain legal documents clearly for a 7th‑grade reader. Friendly tone, not robotic.';
+  const user = `Write the explanation at a 7th-grade reading level in this structure:\n1) One-paragraph summary of what the document is about.\n2) Key points & headlines (bullets).\n3) Watch-outs / red flags (bullets).\n4) Suggested next steps (bullets).\nKeep it accurate and concise.\n\nTEXT:\n${text}`;
   const body = {
     model: (window.OPENROUTER_MODEL || 'deepseek/deepseek-chat'),
     messages: [
@@ -442,8 +446,8 @@ async function cloudExplain(text, shortMode, apiKey) {
 // Add a quick-take section before the explanation
 async function simplifyWithQuickTake(text, shortMode) {
   const key = '';
-  const system = 'You analyze legal documents and explain them in plain English.';
-  const quickPrompt = `Provide a very short Quick take:\n- What type of document is this?\n- What is it about?\n- Most pressing issue(s) or risks to watch\n- Any deadlines/obligations\nUse 3-6 bullet points.\n\nDOCUMENT:\n${text}`;
+  const system = 'You analyze legal documents for a 7th‑grade reader.';
+  const quickPrompt = `Quick Take (3–5 bullets): document type, purpose, key obligations/deadlines, biggest risks.\n\nDOCUMENT:\n${text}`;
   let quick = '';
   try {
     quick = await cloudExplainRaw(system, quickPrompt, key, 300);
