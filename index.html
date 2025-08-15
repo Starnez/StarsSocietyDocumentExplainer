@@ -103,12 +103,8 @@
     <!-- Transformers.js (in‑browser models) -->
     <script src="https://cdn.jsdelivr.net/npm/@xenova/transformers/dist/transformers.min.js"></script>
     <script>
-      // To keep things simple for your users, set your OpenRouter key here once,
-      // deploy, and they never have to touch settings.
-      // NOTE: This key is visible to clients in a static site. Restrict it to your domain in OpenRouter settings.
-      window.OPENROUTER_API_KEY = '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';
-      // Optional: set preferred cloud model slug
-      window.OPENROUTER_MODEL = 'gpt-oss-20b'; // or 'deepseek/deepseek-chat'
+      // Preferred cloud model slug (no secrets here)
+      window.OPENROUTER_MODEL = 'gpt-oss-20b';
     </script>
 
     <script src="./app.js"></script>
