@@ -452,10 +452,12 @@ async function simplifyWithQuickTake(text, shortMode) {
   try {
     quick = await cloudExplainRaw(system, quickPrompt, key, 300);
   } catch {}
-  const body = await simplify(text, shortMode);
-  if (quick) {
-    return `Quick take:\n${quick}\n\n${body}`;
-  }
+  // Prefer full explanation JSON; if quick is valid JSON with summary, return it
+  try {
+    const parsed = JSON.parse(quick);
+    if (parsed && parsed.summary) return JSON.stringify(parsed);
+  } catch {}
+  const body = await cloudExplain(text, shortMode, '');
   return body;
 }
 
