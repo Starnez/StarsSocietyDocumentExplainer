@@ -7,7 +7,7 @@
     <meta name="description" content="Upload or paste legal text and get a plain‑English explanation. All processing happens in your browser (no server, no cost).">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' https://cdnjs.cloudflare.com https://unpkg.com https://cdn.jsdelivr.net; worker-src 'self' blob:; child-src 'self' blob:; connect-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com data: blob:; font-src 'self' data:;">
     <link rel="icon" href="./favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./style.css?v=3">
   </head>
   <body>
     <header class="container hero">
@@ -48,8 +48,7 @@
 
       <section class="card">
         <div class="explain-buttons">
-          <button id="explain-plain-btn" class="primary">Explain in Plain English</button>
-          <button id="explain-detailed-btn" class="secondary">Explain</button>
+          <button id="explain-plain-btn" class="primary primary-wide">Explain in Plain English</button>
         </div>
         <div id="progress" class="progress hidden"><span class="spinner"></span><span id="progress-text"></span></div>
         <div class="progressbar-wrap"><div id="progressbar" class="progressbar"></div></div>
@@ -107,7 +106,7 @@
       window.OPENROUTER_MODEL = 'gpt-oss-20b';
     </script>
 
-    <script src="./app.js"></script>
+    <script src="./app.js?v=3"></script>
   </body>
   </html>
 

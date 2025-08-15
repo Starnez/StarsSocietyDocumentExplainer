@@ -5,7 +5,6 @@ const dropzone = document.getElementById('dropzone');
 const fileNameEl = document.getElementById('file-name');
 const textInput = document.getElementById('text-input');
 const explainPlainBtn = document.getElementById('explain-plain-btn');
-const explainDetailedBtn = document.getElementById('explain-detailed-btn');
 const outputEl = document.getElementById('output');
 const progressEl = document.getElementById('progress');
 const shortModeEl = document.getElementById('short-mode');
@@ -28,7 +27,7 @@ let preprocessedText = '';
 
 function setProgress(text) {
   const progressText = document.getElementById('progress-text');
-  if (progressText) progressText.textContent = text;
+  if (progressText) progressText.textContent = (text && text.includes('Loading AI model')) ? '' : text;
   else progressEl.textContent = text;
   progressEl.classList.toggle('hidden', !text);
 }
@@ -40,10 +39,14 @@ function setProgressPercent(percent) {
   bar.style.width = clamped + '%';
 }
 
+function clearProgress() {
+  setProgress('');
+  setProgressPercent(0);
+}
+
 function setBusy(state) {
   isBusy = state;
   if (explainPlainBtn) explainPlainBtn.disabled = state;
-  if (explainDetailedBtn) explainDetailedBtn.disabled = state;
 }
 
 async function readFileAsArrayBuffer(file) {
@@ -239,7 +242,6 @@ let textModelId = 'Xenova/LaMini-Flan-T5-77M';
 
 async function loadTextModel() {
   if (textModel && textModel.model_id === textModelId) return textModel;
-  setProgress('Loading AI model (first time may take ~20–60s)…');
   const { pipeline, env } = window.transformers;
   try {
     // Encourage caching and faster WASM backend
@@ -272,12 +274,13 @@ function chunkText(text, maxChars) {
 }
 
 async function simplify(text, shortMode) {
-  // If OpenRouter API key is set in config, use cloud model for instant speed
-  const key = (window.OPENROUTER_API_KEY || '').trim();
-  if (key) {
+  // Always try cloud first via proxy; fallback to local model only if cloud fails
+  try {
     setProgress('Calling cloud model…');
-    const result = await cloudExplain(text, shortMode, key);
+    const result = await cloudExplain(text, shortMode, '');
     return result;
+  } catch (e) {
+    console.warn('Cloud failed, falling back to local model', e);
   }
 
   const model = await loadTextModel();
@@ -357,7 +360,6 @@ async function runExplain(shortMode) {
 }
 
 if (explainPlainBtn) explainPlainBtn.addEventListener('click', () => runExplain(true));
-if (explainDetailedBtn) explainDetailedBtn.addEventListener('click', () => runExplain(false));
 
 copyBtn.addEventListener('click', async () => {
   const text = outputEl.textContent || '';
@@ -417,14 +419,9 @@ if (dropzone) {
   });
 }
 
-// Warm-start: only load local model if no OpenRouter key is configured
-window.addEventListener('load', () => {
-  const hasCloud = (window.OPENROUTER_API_KEY || '').trim().length > 0;
-  if (!hasCloud) {
-    setTimeout(() => {
-      loadTextModel().catch(() => {});
-    }, 400);
-  }
+// No warm-start of local model; we use cloud by default
+window.addEventListener('DOMContentLoaded', () => {
+  clearProgress();
 });
 
 // No model selector logic (simplified UX)
@@ -469,14 +466,12 @@ async function cloudExplain(text, shortMode, apiKey) {
 
 // Add a quick-take section before the explanation
 async function simplifyWithQuickTake(text, shortMode) {
-  const key = (window.OPENROUTER_API_KEY || '').trim();
+  const key = '';
   const system = 'You analyze legal documents and explain them in plain English.';
   const quickPrompt = `Provide a very short Quick take:\n- What type of document is this?\n- What is it about?\n- Most pressing issue(s) or risks to watch\n- Any deadlines/obligations\nUse 3-6 bullet points.\n\nDOCUMENT:\n${text}`;
   let quick = '';
   try {
-    if (key) {
-      quick = await cloudExplainRaw(system, quickPrompt, key, 300);
-    }
+    quick = await cloudExplainRaw(system, quickPrompt, key, 300);
   } catch {}
   const body = await simplify(text, shortMode);
   if (quick) {
@@ -511,13 +506,12 @@ async function cloudExplainRaw(system, user, apiKey, maxTokens) {
 
 // Chat about the current document
 async function askChat(question) {
-  const key = (window.OPENROUTER_API_KEY || '').trim();
   const base = preprocessedText || outputEl.textContent || textInput.value || '';
   const context = normalizeWhitespace(base);
-  if (!key || !context) throw new Error('No document context or API key');
+  if (!context) throw new Error('No document context');
   const system = 'You are a helpful legal explainer. Answer questions about the provided document only. If unsure, say you are unsure. Keep it plain English and concise.';
   const user = `Document:\n${context}\n\nQuestion: ${question}\n\nAnswer:`;
-  return await cloudExplainRaw(system, user, key, 600);
+  return await cloudExplainRaw(system, user, '', 600);
 }
 
 function appendChat(role, text) {

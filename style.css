@@ -94,6 +94,7 @@ textarea#text-input {
 }
 .actions { display: flex; gap: 8px; margin-bottom: 8px; }
 .explain-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+.primary-wide { width: 100%; padding: 14px 18px; font-size: 16px; }
 
 .progress { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); margin-top: 8px; }
 .spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.25); border-top-color: var(--accent); border-radius: 50%; display: inline-block; animation: spin 1s linear infinite; }
