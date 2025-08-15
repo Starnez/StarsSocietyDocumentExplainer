@@ -27,6 +27,9 @@ let isBusy = false;
 let selectedModel = 'lamini';
 let preprocessedText = '';
 
+// Start disabled until there is input
+if (explainPlainBtn) explainPlainBtn.disabled = true;
+
 function setProgress(text) {
   const progressText = document.getElementById('progress-text');
   if (progressText) progressText.textContent = (text && text.includes('Loading AI model')) ? '' : text;
@@ -498,7 +501,7 @@ async function askChat(question) {
 function appendChat(role, text) {
   if (!chatLog) return;
   const wrap = document.createElement('div');
-  wrap.className = 'chat-msg';
+  wrap.className = `chat-msg ${role.toLowerCase()==='you'?'me':'ai'}`;
   const r = document.createElement('div');
   r.className = 'chat-role';
   r.textContent = role;

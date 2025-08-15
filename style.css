@@ -142,7 +142,9 @@ textarea#text-input {
 .chat-log { display: grid; gap: 10px; max-height: 280px; overflow-y: auto; padding: 8px; background: #0f1522; border: 1px solid var(--border); border-radius: 8px; }
 .chat-msg { display: grid; gap: 4px; }
 .chat-role { color: var(--muted); font-size: 12px; }
-.chat-bubble { background: #111827; border: 1px solid var(--border); border-radius: 8px; padding: 10px; }
+.chat-bubble { background: #111827; border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; line-height: 1.5; }
+.chat-msg.me .chat-bubble { background: #182235; border-color: #1f3a5f; }
+.chat-msg.ai .chat-bubble { background: #0f1a2b; border-color: #243042; }
 .chat-input-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin-top: 10px; }
 .chat-input-row input { background: #0f1522; color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 10px; }
 .chat-pending { opacity: 0.8; }
