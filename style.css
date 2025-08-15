@@ -102,6 +102,13 @@ textarea#text-input {
 .pane.left .output { min-height: 420px; }
 .pane.right .chat-log { min-height: 420px; }
 
+.landing { display: grid; place-items: center; padding: 24px; }
+.tile { background: #101828; border: 1px solid var(--border); border-radius: 16px; padding: 24px; display: grid; gap: 8px; width: 100%; max-width: 680px; text-align: center; }
+.tile-icon { font-size: 32px; }
+.tile-title { font-weight: 600; }
+.tile-sub { color: var(--muted); }
+.tile-drop { margin-top: 8px; }
+
 .progress { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); margin-top: 8px; }
 .spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.25); border-top-color: var(--accent); border-radius: 50%; display: inline-block; animation: spin 1s linear infinite; }
 .progress.hidden { display: none; }
