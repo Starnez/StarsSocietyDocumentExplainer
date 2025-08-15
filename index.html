@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Stars Society Document Explainer</title>
+    <meta name="description" content="Upload or paste legal text and get a plain‑English explanation. All processing happens in your browser (no server, no cost).">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' https://cdnjs.cloudflare.com https://unpkg.com https://cdn.jsdelivr.net; connect-src 'self';">
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+    <header class="container hero">
+      <div class="hero-inner">
+        <div class="brand-lockup">
+          <img src="./logo.png" onerror="this.onerror=null;this.src='./logo.svg'" alt="Stars Society" class="brand-logo" />
+          <div>
+            <h1>Stars Society Document Explainer</h1>
+            <p class="tagline">Turn complex legal documents into clear, plain English — private and simple.</p>
+          </div>
+        </div>
+        
+        <p class="disclaimer">Automated explanation only — not legal advice. Consult a licensed attorney for legal guidance.</p>
+      </div>
+    </header>
+
+    <main class="container">
+      
+      <section class="card">
+        <h2>Upload or paste</h2>
+        <div id="dropzone" class="dropzone">
+          <input id="file-input" type="file" accept=".pdf,.docx,.png,.jpg,.jpeg,.webp,.bmp,.tiff" />
+          <div class="dropzone-content">
+            <div class="drop-icon" aria-hidden="true">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 16V3m0 0 4 4m-4-4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 16v2a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3v-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </div>
+            <div class="drop-main">Drop your file here</div>
+            <div class="drop-sub">or click to choose .pdf, .docx, or image</div>
+            <div id="file-name" class="file-name"></div>
+          </div>
+        </div>
+        <div id="paste-area" class="paste-area hidden">
+          <textarea id="text-input" placeholder="Paste text here…"></textarea>
+        </div>
+        <button id="paste-toggle" class="link-btn" type="button">Paste text instead</button>
+        <div class="privacy-note">Privacy: files and text never leave your device.</div>
+      </section>
+
+      <section class="card">
+        <div class="explain-buttons">
+          <button id="explain-plain-btn" class="primary">Explain in Plain English</button>
+          <button id="explain-detailed-btn" class="secondary">Explain</button>
+        </div>
+        <div id="progress" class="progress hidden"><span class="spinner"></span><span id="progress-text"></span></div>
+        <div class="progressbar-wrap"><div id="progressbar" class="progressbar"></div></div>
+      </section>
+
+      <section class="card">
+        <h2>Result</h2>
+        <div class="actions">
+          <button id="copy-btn" class="secondary">Copy</button>
+          <button id="download-btn" class="secondary">Download .txt</button>
+          <button id="reset-btn" class="secondary">Reset</button>
+        </div>
+        <div id="output" class="output prose" aria-live="polite"></div>
+      </section>
+
+      <section id="chat-card" class="card hidden">
+        <h2>Ask about this document</h2>
+        <div id="chat-log" class="chat-log" aria-live="polite"></div>
+        <div class="chat-input-row">
+          <input id="chat-input" type="text" placeholder="Ask a question about this document…" />
+          <button id="chat-send" class="primary">Send</button>
+        </div>
+      </section>
+
+      <section class="card about">
+        <h2>About this tool</h2>
+        <ul>
+          <li><strong>Free & private</strong>: everything runs on your device (no server)</li>
+          <li><strong>Open‑source models</strong>: no API keys or usage fees</li>
+          <li><strong>Formats</strong>: PDF, DOCX, images (OCR), or pasted text</li>
+        </ul>
+      </section>
+    </main>
+
+    <footer class="container footer">
+      <div class="disclaimer">This tool provides automated explanations for convenience only and is not legal advice. Consult a licensed attorney for legal guidance.</div>
+      <div class="copyright">Created by Stokley Chaffee Jr. All rights reserved.</div>
+    </footer>
+
+    <!-- Vendor libs (CDN) -->
+    <!-- PDF.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" integrity="sha512-9hS9bTt5YQqLuYwXKr8nfkllVI6Wv0XrZK6dFF7s6xZI9W+W3C6xah6rsVZ4oZ8JxW7ZzX2+4eBx6JqZC4L5YA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+      // Normalize pdfjs global for different builds/CDNs
+      window.pdfjsLib = window.pdfjsLib || window['pdfjs-dist/build/pdf'] || window.pdfjsDistBuildPdf || undefined;
+    </script>
+    <!-- Mammoth (DOCX to HTML/text) -->
+    <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
+    <!-- Tesseract.js (OCR for images) -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <!-- Transformers.js (in‑browser models) -->
+    <script src="https://cdn.jsdelivr.net/npm/@xenova/transformers/dist/transformers.min.js"></script>
+    <script>
+      // To keep things simple for your users, set your OpenRouter key here once,
+      // deploy, and they never have to touch settings.
+      // NOTE: This key is visible to clients in a static site. Restrict it to your domain in OpenRouter settings.
+      window.OPENROUTER_API_KEY = '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';
+      // Optional: set preferred cloud model slug
+      window.OPENROUTER_MODEL = 'gpt-oss-20b'; // or 'deepseek/deepseek-chat'
+    </script>
+
+    <script src="./app.js"></script>
+  </body>
+  </html>
+
+
