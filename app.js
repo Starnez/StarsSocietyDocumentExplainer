@@ -274,35 +274,10 @@ function chunkText(text, maxChars) {
 }
 
 async function simplify(text, shortMode) {
-  // Always try cloud first via proxy; fallback to local model only if cloud fails
-  try {
-    setProgress('Calling cloud model…');
-    const result = await cloudExplain(text, shortMode, '');
-    return result;
-  } catch (e) {
-    console.warn('Cloud failed, falling back to local model', e);
-  }
-
-  const model = await loadTextModel();
-  const chunks = chunkText(text, 1600);
-  const outputs = [];
-  let index = 0;
-  for (const chunk of chunks) {
-    index += 1;
-    setProgress(`Explaining part ${index}/${chunks.length}…`);
-    setProgressPercent(90 + Math.round((index - 1) / Math.max(1, chunks.length) * 9));
-    const prompt = `Explain the following text in plain, simple English.\n- Use short sentences.\n- Keep meaning accurate and neutral.\n- Use bullet points when listing.\n- ${shortMode ? 'Keep it concise.' : 'Be thorough but clear.'}\n\nText:\n${chunk}\n\nExplanation:`;
-    const out = await model(prompt, {
-      max_new_tokens: shortMode ? 220 : 360,
-      temperature: 0.2,
-      top_p: 0.9,
-      repetition_penalty: 1.05,
-    });
-    const textOut = Array.isArray(out) ? out[0].generated_text : String(out);
-    // LaMini returns only the generation, not echoing the prompt.
-    outputs.push(textOut.trim());
-  }
-  return outputs.join('\n\n');
+  // Cloud only. If it fails, show the upstream error instead of falling back.
+  setProgress('Calling cloud model…');
+  const result = await cloudExplain(text, shortMode, '');
+  return result;
 }
 
 function normalizeWhitespace(text) {
