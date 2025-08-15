@@ -22,6 +22,8 @@ const cancelBtn = document.getElementById('cancel-btn');
 const panes = document.getElementById('panes');
 const uploadCard = document.getElementById('upload-card');
 const actionCard = document.getElementById('action-card');
+const aboutCard = document.querySelector('.card.about');
+const landingView = document.getElementById('landing-view');
 
 // No visible model selector; cloud is used if key present, else local fallback
 // OpenRouter key is now embedded via config below for simplicity
@@ -29,6 +31,12 @@ const actionCard = document.getElementById('action-card');
 let isBusy = false;
 let selectedModel = 'lamini';
 let preprocessedText = '';
+
+let docState = {
+  text: '',
+  explanation: '',
+  chatHistory: []
+};
 
 // Start disabled until there is input
 if (explainPlainBtn) explainPlainBtn.disabled = true;
