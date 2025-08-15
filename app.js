@@ -19,6 +19,9 @@ const pasteToggle = document.getElementById('paste-toggle');
 const pasteArea = document.getElementById('paste-area');
 // Cancel button for progress
 const cancelBtn = document.getElementById('cancel-btn');
+const panes = document.getElementById('panes');
+const uploadCard = document.getElementById('upload-card');
+const actionCard = document.getElementById('action-card');
 
 // No visible model selector; cloud is used if key present, else local fallback
 // OpenRouter key is now embedded via config below for simplicity
@@ -214,6 +217,11 @@ async function getInputText() {
   }
   const parsed = (text || '').trim();
   if (explainPlainBtn) explainPlainBtn.disabled = !(file || parsed.length);
+  if (file || parsed.length) {
+    // reveal action card and split panes
+    if (actionCard) actionCard.classList.remove('hidden');
+    if (panes) panes.classList.remove('hidden');
+  }
   return parsed;
 }
 
